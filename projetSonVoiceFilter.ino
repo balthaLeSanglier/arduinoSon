@@ -1,7 +1,6 @@
 #include <Audio.h>
 #include "Filters.h"
 
-
 Filters filters;
 AudioInputI2S in;
 AudioOutputI2S out;
@@ -23,6 +22,10 @@ bool isDown;
 bool isRelease;
 int digitalReadConverted = 0;
 
+float mtof(float note){
+  return pow(2.0,(note-69.0)/12.0)*440.0;
+}
+
 void setup() {
   Serial.begin(9600);
   AudioMemory(30);
@@ -40,7 +43,7 @@ void loop() {
         float note = notefreq.read();
         float prob = notefreq.probability();
         Serial.printf("Note: %3.2f | Probability: %.2f\n", note, prob);
-        filters.setParamValue("FreqHigh", note);
+        filters.setParamValue("FreqHigh", mtof(note));
     }
 
   int digitalReadValue = digitalRead(0);
@@ -57,12 +60,10 @@ void loop() {
   else if(digitalReadValue== 0 && isDown==true) {
     isDown = false;
   }
-
   if (digitalReadConverted ==1) {
     filters.setParamValue("mode",0);
     Serial.println(filters.getParamValue("mode"));  
   }
-  
   else if (digitalReadConverted == 2) {
     filters.setParamValue("mode",1);
     Serial.println(filters.getParamValue("mode"));
@@ -71,5 +72,4 @@ void loop() {
   }
 
   delay(50);
-
 }
