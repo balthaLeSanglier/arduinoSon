@@ -14,8 +14,8 @@ AudioMixer4               mixer;
 // AudioConnection patchCord1(in,0,out,0);
 // AudioConnection patchCord2(in,0,out,1);
 
-AudioConnection patchCord0(in, 0, filters, 0);
-AudioConnection patchCord1(filters, 0, notefreq, 0);
+AudioConnection patchCord0(in, 0, notefreq, 0);
+// AudioConnection patchCord1(filters, 0, notefreq, 0);
 //AudioConnection patchCord2(in, 0, out, 0);
 //AudioConnection patchCord1(filters,0,out,1);
 
@@ -25,22 +25,22 @@ int digitalReadConverted = 0;
 
 void setup() {
   Serial.begin(9600);
-  AudioMemory(6);
+  AudioMemory(30);
   audioShield.enable();
   audioShield.inputSelect(AUDIO_INPUT_MIC);
   audioShield.micGain(10); // in dB
   audioShield.volume(1);
-  notefreq.begin(0.99);
+  notefreq.begin(0.15);
 }
 
 void loop() {
-  filters.setParamValue("FreqHigh",100);
-  Serial.println(notefreq.read());
+  // Serial.println(notefreq.read());
   if (notefreq.available()) {
         Serial.println("available");
         float note = notefreq.read();
         float prob = notefreq.probability();
         Serial.printf("Note: %3.2f | Probability: %.2f\n", note, prob);
+        filters.setParamValue("FreqHigh", note);
     }
 
   int digitalReadValue = digitalRead(0);
