@@ -10350,53 +10350,14 @@ struct dsp_poly_factory : public dsp_factory {
 #define RESTRICT __restrict__
 #endif
 
-struct mydspSIG0 {
-	int iVec1[2];
-	int iRec1[2];
-	
-	int getNumInputsmydspSIG0() {
-		return 0;
-	}
-	int getNumOutputsmydspSIG0() {
-		return 1;
-	}
-	
-	void instanceInitmydspSIG0(int sample_rate) {
-		for (int l1 = 0; l1 < 2; l1 = l1 + 1) {
-			iVec1[l1] = 0;
-		}
-		for (int l2 = 0; l2 < 2; l2 = l2 + 1) {
-			iRec1[l2] = 0;
-		}
-	}
-	
-	void fillmydspSIG0(int count, float* table) {
-		for (int i1 = 0; i1 < count; i1 = i1 + 1) {
-			iVec1[0] = 1;
-			iRec1[0] = (iVec1[1] + iRec1[1]) % 65536;
-			table[i1] = std::sin(9.58738e-05f * float(iRec1[0]));
-			iVec1[1] = iVec1[0];
-			iRec1[1] = iRec1[0];
-		}
-	}
-
-};
-
-static mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
-static void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
-
-static float ftbl0mydspSIG0[65536];
 
 struct mydsp : public dsp {
 	
-	int iVec0[2];
 	FAUSTFLOAT fHslider0;
 	int fSampleRate;
 	float fConst0;
-	float fConst1;
 	FAUSTFLOAT fHslider1;
-	float fConst2;
-	float fRec2[2];
+	int iRec1[2];
 	float fRec0[3];
 	FAUSTFLOAT fHslider2;
 	
@@ -10404,8 +10365,6 @@ struct mydsp : public dsp {
 	}
 	
 	void metadata(Meta* m) { 
-		m->declare("basics.lib/name", "Faust Basic Element Library");
-		m->declare("basics.lib/version", "1.21.0");
 		m->declare("compile_options", "-a /usr/local/share/faust/teensy/teensy.cpp -lang cpp -i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -uim -single -ftz 0");
 		m->declare("filename", "Filters.dsp");
 		m->declare("maths.lib/author", "GRAME");
@@ -10419,8 +10378,6 @@ struct mydsp : public dsp {
 		m->declare("maxmsp.lib/name", "MaxMSP compatibility Library");
 		m->declare("maxmsp.lib/version", "1.1.0");
 		m->declare("name", "Filters");
-		m->declare("oscillators.lib/name", "Faust Oscillator Library");
-		m->declare("oscillators.lib/version", "1.5.1");
 		m->declare("platform.lib/name", "Generic Platform Library");
 		m->declare("platform.lib/version", "1.3.0");
 	}
@@ -10433,34 +10390,25 @@ struct mydsp : public dsp {
 	}
 	
 	static void classInit(int sample_rate) {
-		mydspSIG0* sig0 = newmydspSIG0();
-		sig0->instanceInitmydspSIG0(sample_rate);
-		sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
-		deletemydspSIG0(sig0);
 	}
 	
 	virtual void instanceConstants(int sample_rate) {
 		fSampleRate = sample_rate;
-		fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
-		fConst1 = 6.2831855f / fConst0;
-		fConst2 = 5e+02f / fConst0;
+		fConst0 = 6.2831855f / std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
 	}
 	
 	virtual void instanceResetUserInterface() {
-		fHslider0 = FAUSTFLOAT(5e+03f);
+		fHslider0 = FAUSTFLOAT(1e+03f);
 		fHslider1 = FAUSTFLOAT(1.0f);
 		fHslider2 = FAUSTFLOAT(0.0f);
 	}
 	
 	virtual void instanceClear() {
 		for (int l0 = 0; l0 < 2; l0 = l0 + 1) {
-			iVec0[l0] = 0;
+			iRec1[l0] = 0;
 		}
-		for (int l3 = 0; l3 < 2; l3 = l3 + 1) {
-			fRec2[l3] = 0.0f;
-		}
-		for (int l4 = 0; l4 < 3; l4 = l4 + 1) {
-			fRec0[l4] = 0.0f;
+		for (int l1 = 0; l1 < 3; l1 = l1 + 1) {
+			fRec0[l1] = 0.0f;
 		}
 	}
 	
@@ -10485,7 +10433,7 @@ struct mydsp : public dsp {
 	
 	virtual void buildUserInterface(UI* ui_interface) {
 		ui_interface->openVerticalBox("Filters");
-		ui_interface->addHorizontalSlider("FreqHigh", &fHslider0, FAUSTFLOAT(5e+03f), FAUSTFLOAT(1e+02f), FAUSTFLOAT(1e+04f), FAUSTFLOAT(1.0f));
+		ui_interface->addHorizontalSlider("FreqHigh", &fHslider0, FAUSTFLOAT(1e+03f), FAUSTFLOAT(1e+02f), FAUSTFLOAT(1e+04f), FAUSTFLOAT(1.0f));
 		ui_interface->addHorizontalSlider("QHigh", &fHslider1, FAUSTFLOAT(1.0f), FAUSTFLOAT(0.01f), FAUSTFLOAT(1e+02f), FAUSTFLOAT(0.01f));
 		ui_interface->addHorizontalSlider("mode", &fHslider2, FAUSTFLOAT(0.0f), FAUSTFLOAT(0.0f), FAUSTFLOAT(1.0f), FAUSTFLOAT(1.0f));
 		ui_interface->closeBox();
@@ -10494,7 +10442,7 @@ struct mydsp : public dsp {
 	virtual void compute(int count, FAUSTFLOAT** RESTRICT inputs, FAUSTFLOAT** RESTRICT outputs) {
 		FAUSTFLOAT* output0 = outputs[0];
 		FAUSTFLOAT* output1 = outputs[1];
-		float fSlow0 = fConst1 * std::max<float>(0.0f, float(fHslider0));
+		float fSlow0 = fConst0 * std::max<float>(0.0f, float(fHslider0));
 		float fSlow1 = std::cos(fSlow0);
 		float fSlow2 = 2.0f * fSlow1;
 		float fSlow3 = 0.5f * (std::sin(fSlow0) / std::max<float>(0.001f, float(fHslider1)));
@@ -10506,15 +10454,12 @@ struct mydsp : public dsp {
 		float fSlow9 = -1.0f - fSlow1;
 		float fSlow10 = float(fSlow6 == 0.0f);
 		for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-			iVec0[0] = 1;
-			float fTemp0 = ((1 - iVec0[1]) ? 0.0f : fConst2 + fRec2[1]);
-			fRec2[0] = fTemp0 - std::floor(fTemp0);
-			fRec0[0] = ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0f * fRec2[0]), 65535))] - fSlow5 * (fSlow4 * fRec0[2] - fSlow2 * fRec0[1]);
-			float fTemp1 = fSlow5 * (fSlow10 * (fSlow9 * fRec0[1] + fSlow8 * fRec0[0] + fSlow8 * fRec0[2]) + fSlow7 * (fRec0[1] + 0.5f * fRec0[0] + 0.5f * fRec0[2]));
-			output0[i0] = FAUSTFLOAT(fTemp1);
-			output1[i0] = FAUSTFLOAT(fTemp1);
-			iVec0[1] = iVec0[0];
-			fRec2[1] = fRec2[0];
+			iRec1[0] = 1103515245 * iRec1[1] + 12345;
+			fRec0[0] = 4.656613e-10f * float(iRec1[0]) - fSlow5 * (fSlow4 * fRec0[2] - fSlow2 * fRec0[1]);
+			float fTemp0 = fSlow5 * (fSlow10 * (fSlow9 * fRec0[1] + fSlow8 * fRec0[0] + fSlow8 * fRec0[2]) + fSlow7 * (fRec0[1] + 0.5f * fRec0[0] + 0.5f * fRec0[2]));
+			output0[i0] = FAUSTFLOAT(fTemp0);
+			output1[i0] = FAUSTFLOAT(fTemp0);
+			iRec1[1] = iRec1[0];
 			fRec0[2] = fRec0[1];
 			fRec0[1] = fRec0[0];
 		}
@@ -10532,12 +10477,12 @@ struct mydsp : public dsp {
 	#define FAUST_ACTIVES 3
 	#define FAUST_PASSIVES 0
 
-	FAUST_ADDHORIZONTALSLIDER("FreqHigh", fHslider0, 5e+03f, 1e+02f, 1e+04f, 1.0f);
+	FAUST_ADDHORIZONTALSLIDER("FreqHigh", fHslider0, 1e+03f, 1e+02f, 1e+04f, 1.0f);
 	FAUST_ADDHORIZONTALSLIDER("QHigh", fHslider1, 1.0f, 0.01f, 1e+02f, 0.01f);
 	FAUST_ADDHORIZONTALSLIDER("mode", fHslider2, 0.0f, 0.0f, 1.0f, 1.0f);
 
 	#define FAUST_LIST_ACTIVES(p) \
-		p(HORIZONTALSLIDER, FreqHigh, "FreqHigh", fHslider0, 5e+03f, 1e+02f, 1e+04f, 1.0f) \
+		p(HORIZONTALSLIDER, FreqHigh, "FreqHigh", fHslider0, 1e+03f, 1e+02f, 1e+04f, 1.0f) \
 		p(HORIZONTALSLIDER, QHigh, "QHigh", fHslider1, 1.0f, 0.01f, 1e+02f, 0.01f) \
 		p(HORIZONTALSLIDER, mode, "mode", fHslider2, 0.0f, 0.0f, 1.0f, 1.0f) \
 

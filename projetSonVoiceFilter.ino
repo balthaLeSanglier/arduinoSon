@@ -14,6 +14,10 @@ AudioMixer4               mixer;
 // AudioConnection patchCord2(in,0,out,1);
 
 AudioConnection patchCord0(in, 0, notefreq, 0);
+AudioConnection patchCord2(filters, 0, out, 1);
+AudioConnection patchCord3(filters, 0, out, 0);
+
+
 // AudioConnection patchCord1(filters, 0, notefreq, 0);
 //AudioConnection patchCord2(in, 0, out, 0);
 //AudioConnection patchCord1(filters,0,out,1);
@@ -32,21 +36,29 @@ void setup() {
   audioShield.enable();
   audioShield.inputSelect(AUDIO_INPUT_MIC);
   audioShield.micGain(10); // in dB
-  audioShield.volume(1);
+  audioShield.volume(0.3);
   notefreq.begin(0.15);
 }
 
 void loop() {
-  // Serial.println(notefreq.read());
-  if (notefreq.available()) {
+  int digitalReadValue = digitalRead(0);
+  int readyToListen = digitalRead(1);
+
+
+  if (notefreq.available() && (readyToListen==0)) {
         Serial.println("available");
         float note = notefreq.read();
         float prob = notefreq.probability();
-        Serial.printf("Note: %3.2f | Probability: %.2f\n", note, prob);
-        filters.setParamValue("FreqHigh", mtof(note));
+        //Serial.printf("Note: %3.2f | Probability: %.2f\n", note, prob);
+        filters.setParamValue("FreqHigh", note*25); //20 Permet de set la fréquence de coupure dans des intervalles intéressants
+        //Serial.println(mtof(note));
+        Serial.println(note*20);
+
+
     }
 
-  int digitalReadValue = digitalRead(0);
+  
+
   
   if(digitalReadValue==1 && isDown==false) {
     isDown=true;
@@ -54,19 +66,15 @@ void loop() {
     if (digitalReadConverted > 2) {  
       digitalReadConverted = 0;
     }
-    Serial.print("State: ");
-    Serial.println(digitalReadConverted); 
   }
   else if(digitalReadValue== 0 && isDown==true) {
     isDown = false;
   }
   if (digitalReadConverted ==1) {
     filters.setParamValue("mode",0);
-    Serial.println(filters.getParamValue("mode"));  
   }
   else if (digitalReadConverted == 2) {
     filters.setParamValue("mode",1);
-    Serial.println(filters.getParamValue("mode"));
   }
   else if (digitalReadConverted == 3) {
   }
