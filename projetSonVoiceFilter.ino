@@ -26,17 +26,17 @@ bool isDown;
 bool isRelease;
 int digitalReadConverted = 0;
 
-float mtof(float note){
-  return pow(2.0,(note-69.0)/12.0)*440.0;
+float fToP(float frequency){
+  return ((frequency-250)/15);
 }
 
 void setup() {
   Serial.begin(9600);
-  AudioMemory(30);
+  AudioMemory(60);
   audioShield.enable();
   audioShield.inputSelect(AUDIO_INPUT_MIC);
   audioShield.micGain(10); // in dB
-  audioShield.volume(0.3);
+  audioShield.volume(0.7);
   notefreq.begin(0.15);
 }
 
@@ -45,38 +45,40 @@ void loop() {
   int readyToListen = digitalRead(1);
 
 
-  if (notefreq.available() && (readyToListen==0)) {
+  if (notefreq.available() && (readyToListen==1)) {
         Serial.println("available");
         float note = notefreq.read();
         float prob = notefreq.probability();
         //Serial.printf("Note: %3.2f | Probability: %.2f\n", note, prob);
-        filters.setParamValue("FreqHigh", note*25); //20 Permet de set la fréquence de coupure dans des intervalles intéressants
-        //Serial.println(mtof(note));
-        Serial.println(note*20);
-
-
+        filters.setParamValue("FreqHigh", note*5); //20 Permet de set la fréquence de coupure dans des intervalles intéressants
+        filters.setParamValue("shift", fToP(note)); //20 Permet de set la fréquence de coupure dans des intervalles intéressants
+        Serial.println(fToP(note));
     }
 
-  
 
-  
+
   if(digitalReadValue==1 && isDown==false) {
     isDown=true;
     digitalReadConverted++;
-    if (digitalReadConverted > 2) {  
+    if (digitalReadConverted >= 3) {  
       digitalReadConverted = 0;
     }
-  }
+  }<
   else if(digitalReadValue== 0 && isDown==true) {
     isDown = false;
   }
   if (digitalReadConverted ==1) {
     filters.setParamValue("mode",0);
+    Serial.println("Passe-haut");
   }
   else if (digitalReadConverted == 2) {
     filters.setParamValue("mode",1);
+    Serial.println("Passe-bas");
+
   }
-  else if (digitalReadConverted == 3) {
+  else if (digitalReadConverted == 0) {
+    filters.setParamValue("mode",2);
+    Serial.println("Pitch-Shifter");
   }
 
   delay(50);
