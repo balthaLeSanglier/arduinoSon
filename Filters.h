@@ -52,6 +52,8 @@ class Filters : public AudioStream
     
         void setParamValue(const std::string& path, float value);
         float getParamValue(const std::string& path);
+
+
     
     private:
     
