@@ -78,13 +78,62 @@ void loop() {
     level[15] = myFFTin.read(360, 511);
 
     // Envoi des données au Serial Plotter
-    Serial.print(0); // To freeze the lower limit
-    Serial.print(3); // To freeze the lower limit
-    for (int i=0; i<16; i++) {
-      Serial.print(level[i] * scale);
-      Serial.print(" ");
-    }
-    Serial.println();
+    // Serial.print(0); // To freeze the lower limit
+    // Serial.print(3); // To freeze the lower limit
+    // for (int i=0; i<16; i++) {
+    //   Serial.print(i);
+    //   Serial.print(":");
+    //   Serial.print(level[i] * scale);
+    //   Serial.print("\t");
+    //   Serial.println("");
+    // }
+//     Serial.print("0Hz:"); Serial.print(level[0]);
+// Serial.print("\t");
+// Serial.print("43Hz:"); Serial.print(level[1]);
+// // Serial.print("\t");
+// Serial.print("86-129Hz:"); Serial.print(level[2]);
+// Serial.print("\t");
+// // Serial.print("172-258Hz:"); Serial.print(level[3]);
+// // Serial.print("\t");
+// // Serial.print("301-430Hz:"); Serial.print(level[4]);
+// // Serial.print("\t");
+// // Serial.print("473-645Hz:"); Serial.print(level[5]);
+// // Serial.print("\t");
+// Serial.print("688-946Hz:"); Serial.print(level[6]);
+// Serial.print("\t");
+// // Serial.print("989-1378Hz:"); Serial.print(level[7]);
+// // Serial.print("\t");
+// // Serial.print("1421-1978Hz:"); Serial.print(level[8]);
+// // Serial.print("\t");
+// // Serial.print("2021-2842Hz:"); Serial.print(level[9]);
+// // Serial.print("\t");
+// // Serial.print("2885-4000Hz:"); Serial.print(level[10]);
+// // Serial.print("\t");
+// // Serial.print("4043-5642Hz:"); Serial.print(level[11]);
+// // Serial.print("\t");
+// Serial.print("5685-7922Hz:"); Serial.print(level[12]);
+// // Serial.print("\t");
+// // Serial.print("7965-11063Hz:"); Serial.print(level[13]);
+// // Serial.print("\t");
+// // Serial.print("11106-15455Hz:"); Serial.print(level[14]);
+// // Serial.print("\t");
+// // Serial.print("15498-22050Hz:"); Serial.print(level[15]);
+// Serial.println(); // Nouvelle ligne après chaque affichage
+
+// Calcul des niveaux pour les 3 courbes
+float bass = level[0] + level[1] + level[2] + level[3] + level[4]; // 0 - 430 Hz
+float mids = level[5] + level[6] + level[7] + level[8] + level[9] + level[10]; // 473 - 4000 Hz
+float highs = level[11] + level[12] + level[13] + level[14] + level[15]; // 4043 - 22050 Hz
+
+// Affichage sur le moniteur série
+Serial.print("Bass:"); Serial.print(bass);
+Serial.print("\t");
+Serial.print("Mids:"); Serial.print(mids);
+Serial.print("\t");
+Serial.print("Highs:"); Serial.print(highs);
+Serial.println(); // Nouvelle ligne pour chaque cycle d'affichage
+
+
   }
   // if (notefreqIn.available()) {
   //   inputFreq = notefreqIn.read();
@@ -98,26 +147,26 @@ void loop() {
     float note = notefreq.read(); // Mise à jour de la variable
     float prob = notefreq.probability();
     filters.setParamValue("FreqHigh", note * 5);
-    Serial.println(note*5);
+    // Serial.println(note*5);
     filters.setParamValue("shift", fToP(note));
   }
 
   // Partie affichage
-  if (myFFTin.available()) {
-    // each time new FFT data is available
-    // print it all to the Arduino Serial Monitor
-    Serial.print("FFT: ");
-    for (i=0; i<40; i++) {
-      n = myFFTin.read(i);
-      if (n >= 0.01) {
-        Serial.print(n);
-        Serial.print(" ");
-      } else {
-        Serial.print("  -  "); // don't print "0.00"
-      }
-    }
-    Serial.println();
-  }
+  // if (myFFTin.available()) {
+  //   // each time new FFT data is available
+  //   // print it all to the Arduino Serial Monitor
+  //   // Serial.print("FFT: ");
+  //   for (i=0; i<40; i++) {
+  //     n = myFFTin.read(i);
+  //     if (n >= 0.01) {
+  //     //   Serial.print(n);
+  //     //   Serial.print(" ");
+  //     // } else {
+  //     //   Serial.print("  -  "); // don't print "0.00"
+  //     }
+  //   }
+  //   Serial.println();
+  // }
 
   if(digitalReadValue==1 && isDown==false) {
     isDown=true;
@@ -131,16 +180,16 @@ void loop() {
   }
   if (digitalReadConverted ==1) {
     filters.setParamValue("mode",0);
-    Serial.println("Passe-haut");
+    // Serial.println("Passe-haut");
   }
   else if (digitalReadConverted == 2) {
     filters.setParamValue("mode",1);
-    Serial.println("Passe-bas");
+    // Serial.println("Passe-bas");
 
   }
   else if (digitalReadConverted == 0) {
     filters.setParamValue("mode",2);
-    Serial.println("Pitch-Shifter");
+    // Serial.println("Pitch-Shifter");
   }
 
   delay(150);
